@@ -40,6 +40,16 @@ ethernet_interfaces:
   peer: s2-spine2
   peer_interface: Ethernet3
   peer_type: l3spine
+- name: Ethernet4
+  description: SERVER_s2-host1_eth2
+  shutdown: false
+  channel_group:
+    id: 4
+    mode: active
+  peer: s2-host1
+  peer_interface: eth2
+  peer_type: server
+  port_profile: PP-VLAN30
 hostname: s2-leaf2
 ip_igmp_snooping:
   globally_enabled: true
@@ -48,9 +58,7 @@ local_users:
 - name: arista
   privilege: 15
   role: network-admin
-  sha512_password: $6$arista$gkk9.wB2gGlwr4Sp4/1cVBy3S8.MYLiSGM1GOoMtkzHNpDENJvP5n4PEVQ2.Ob5n7qS7KDkBS2t4Qm5xDHL4b1
-  ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxUH7QqW7xUDiHJBMiznL4mZDVLmHTSHYUoX48lFULHhN8hfT+rZfoYXudAYk9bJOLuYJ6he4A294xUTDCehRWIV8bOf9bXDaLu7QI2CcwyETDZ4aPW9sUQXsOz02CKI0nLx1V3e5naVd4wHYud+OtboaTiFqM+TTxyxDljBhFIgV3DDwpuXOt/CXsGFbln3a5zDn4oQPVC5JntOhFm9ip0R/O7xn3CMBKGVGf/SEqPLsB/EvuFUGSboYeWBHr6a0GyJR5Y4hb65ho7LK/cbeB2erMspKyu/PDxVgywjyJgjiV3a7v9HOsbTLGJkHhwBxFKSv5OHer4LainyL5s5F7
-    arista@toronto-workshop-4-9285da02-eos
+  sha512_password: $6$arista$f4D4MWZ9MqCOuIm0r14.FarRBZEX4AFBo7gilb2lBWdLQ2jsspj4MLOb96./.o4I0U8NZ0AeB/SqzVCLpTIzi.
 management_api_http:
   enable_https: true
   enable_vrfs:
@@ -91,7 +99,16 @@ port_channel_interfaces:
     enabled: true
     mode: trunk
     trunk:
-      allowed_vlan: none
+      allowed_vlan: '30'
+- name: Port-Channel4
+  description: SERVER_s2-host1
+  shutdown: false
+  mlag: 4
+  spanning_tree_portfast: edge
+  switchport:
+    enabled: true
+    mode: access
+    access_vlan: 30
 service_routing_protocols_model: multi-agent
 spanning_tree:
   mode: mstp
@@ -122,6 +139,9 @@ vlans:
   trunk_groups:
   - MLAG
   tenant: system
+- id: 30
+  name: Thirty
+  tenant: MY_FABRIC
 vrfs:
 - name: default
   ip_routing: false
