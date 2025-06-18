@@ -92,9 +92,7 @@ local_users:
 - name: arista
   privilege: 15
   role: network-admin
-  sha512_password: $6$arista$gkk9.wB2gGlwr4Sp4/1cVBy3S8.MYLiSGM1GOoMtkzHNpDENJvP5n4PEVQ2.Ob5n7qS7KDkBS2t4Qm5xDHL4b1
-  ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxUH7QqW7xUDiHJBMiznL4mZDVLmHTSHYUoX48lFULHhN8hfT+rZfoYXudAYk9bJOLuYJ6he4A294xUTDCehRWIV8bOf9bXDaLu7QI2CcwyETDZ4aPW9sUQXsOz02CKI0nLx1V3e5naVd4wHYud+OtboaTiFqM+TTxyxDljBhFIgV3DDwpuXOt/CXsGFbln3a5zDn4oQPVC5JntOhFm9ip0R/O7xn3CMBKGVGf/SEqPLsB/EvuFUGSboYeWBHr6a0GyJR5Y4hb65ho7LK/cbeB2erMspKyu/PDxVgywjyJgjiV3a7v9HOsbTLGJkHhwBxFKSv5OHer4LainyL5s5F7
-    arista@toronto-workshop-4-9285da02-eos
+  sha512_password: $6$arista$f4D4MWZ9MqCOuIm0r14.FarRBZEX4AFBo7gilb2lBWdLQ2jsspj4MLOb96./.o4I0U8NZ0AeB/SqzVCLpTIzi.
 loopback_interfaces:
 - name: Loopback0
   description: ROUTER_ID
@@ -141,7 +139,7 @@ port_channel_interfaces:
     enabled: true
     mode: trunk
     trunk:
-      allowed_vlan: none
+      allowed_vlan: '30'
 - name: Port-Channel4
   description: L2_RACK2_Port-Channel2
   shutdown: false
@@ -150,7 +148,7 @@ port_channel_interfaces:
     enabled: true
     mode: trunk
     trunk:
-      allowed_vlan: none
+      allowed_vlan: '40'
 router_ospf:
   process_ids:
   - id: 100
@@ -191,6 +189,33 @@ vlan_interfaces:
   ip_address: 10.2.253.1/31
   mtu: 1500
   no_autostate: true
+- name: Vlan30
+  description: Thirty
+  shutdown: false
+  ip_address: 10.30.30.3/24
+  ip_virtual_router_addresses:
+  - 10.30.30.1
+  tenant: MY_FABRIC
+  tags:
+  - DB
+- name: Vlan40
+  description: Forty
+  shutdown: false
+  ip_address: 10.40.40.3/24
+  ip_virtual_router_addresses:
+  - 10.40.40.1
+  tenant: MY_FABRIC
+  tags:
+  - DMZ
+- name: Vlan45
+  description: Forty-five
+  shutdown: false
+  ip_address: 10.45.45.3/24
+  ip_virtual_router_addresses:
+  - 10.45.45.1
+  tenant: MY_FABRIC
+  tags:
+  - Guest
 vlan_internal_order:
   allocation: ascending
   range:
@@ -207,6 +232,15 @@ vlans:
   trunk_groups:
   - MLAG
   tenant: system
+- id: 30
+  name: Thirty
+  tenant: MY_FABRIC
+- id: 40
+  name: Forty
+  tenant: MY_FABRIC
+- id: 45
+  name: Forty-five
+  tenant: MY_FABRIC
 vrfs:
 - name: default
   ip_routing: false

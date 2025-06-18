@@ -137,7 +137,6 @@ management api http-commands
 ```eos
 !
 username arista privilege 15 role network-admin secret sha512 <removed>
-username arista ssh-key ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxUH7QqW7xUDiHJBMiznL4mZDVLmHTSHYUoX48lFULHhN8hfT+rZfoYXudAYk9bJOLuYJ6he4A294xUTDCehRWIV8bOf9bXDaLu7QI2CcwyETDZ4aPW9sUQXsOz02CKI0nLx1V3e5naVd4wHYud+OtboaTiFqM+TTxyxDljBhFIgV3DDwpuXOt/CXsGFbln3a5zDn4oQPVC5JntOhFm9ip0R/O7xn3CMBKGVGf/SEqPLsB/EvuFUGSboYeWBHr6a0GyJR5Y4hb65ho7LK/cbeB2erMspKyu/PDxVgywjyJgjiV3a7v9HOsbTLGJkHhwBxFKSv5OHer4LainyL5s5F7 arista@toronto-workshop-4-9285da02-eos
 ```
 
 ### Enable Password
@@ -249,11 +248,15 @@ vlan internal order ascending range 1006 1199
 
 | VLAN ID | Name | Trunk Groups |
 | ------- | ---- | ------------ |
+| 30 | Thirty | - |
 | 4094 | MLAG | MLAG |
 
 ### VLANs Device Configuration
 
 ```eos
+!
+vlan 30
+   name Thirty
 !
 vlan 4094
    name MLAG
@@ -271,8 +274,9 @@ vlan 4094
 | Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | Channel-Group |
 | --------- | ----------- | ---- | ----- | ----------- | ----------- | ------------- |
 | Ethernet1 | MLAG_s2-leaf1_Ethernet1 | *trunk | *- | *- | *MLAG | 1 |
-| Ethernet2 | L2_s2-spine1_Ethernet3 | *trunk | *none | *- | *- | 2 |
-| Ethernet3 | L2_s2-spine2_Ethernet3 | *trunk | *none | *- | *- | 2 |
+| Ethernet2 | L2_s2-spine1_Ethernet3 | *trunk | *30 | *- | *- | 2 |
+| Ethernet3 | L2_s2-spine2_Ethernet3 | *trunk | *30 | *- | *- | 2 |
+| Ethernet4 | SERVER_s2-host1_eth2 | *access | *30 | *- | *- | 4 |
 | Ethernet6 | MLAG_s2-leaf1_Ethernet6 | *trunk | *- | *- | *MLAG | 1 |
 
 *Inherited from Port-Channel Interface
@@ -296,6 +300,11 @@ interface Ethernet3
    no shutdown
    channel-group 2 mode active
 !
+interface Ethernet4
+   description SERVER_s2-host1_eth2
+   no shutdown
+   channel-group 4 mode active
+!
 interface Ethernet6
    description MLAG_s2-leaf1_Ethernet6
    no shutdown
@@ -311,7 +320,8 @@ interface Ethernet6
 | Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | LACP Fallback Timeout | LACP Fallback Mode | MLAG ID | EVPN ESI |
 | --------- | ----------- | ---- | ----- | ----------- | ------------| --------------------- | ------------------ | ------- | -------- |
 | Port-Channel1 | MLAG_s2-leaf1_Port-Channel1 | trunk | - | - | MLAG | - | - | - | - |
-| Port-Channel2 | L2_SPINES_Port-Channel2 | trunk | none | - | - | - | - | 2 | - |
+| Port-Channel2 | L2_SPINES_Port-Channel2 | trunk | 30 | - | - | - | - | 2 | - |
+| Port-Channel4 | SERVER_s2-host1 | access | 30 | - | - | - | - | 4 | - |
 
 #### Port-Channel Interfaces Device Configuration
 
@@ -327,10 +337,19 @@ interface Port-Channel1
 interface Port-Channel2
    description L2_SPINES_Port-Channel2
    no shutdown
-   switchport trunk allowed vlan none
+   switchport trunk allowed vlan 30
    switchport mode trunk
    switchport
    mlag 2
+!
+interface Port-Channel4
+   description SERVER_s2-host1
+   no shutdown
+   switchport access vlan 30
+   switchport mode access
+   switchport
+   mlag 4
+   spanning-tree portfast
 ```
 
 ### VLAN Interfaces

@@ -140,7 +140,6 @@ management api http-commands
 ```eos
 !
 username arista privilege 15 role network-admin secret sha512 <removed>
-username arista ssh-key ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxUH7QqW7xUDiHJBMiznL4mZDVLmHTSHYUoX48lFULHhN8hfT+rZfoYXudAYk9bJOLuYJ6he4A294xUTDCehRWIV8bOf9bXDaLu7QI2CcwyETDZ4aPW9sUQXsOz02CKI0nLx1V3e5naVd4wHYud+OtboaTiFqM+TTxyxDljBhFIgV3DDwpuXOt/CXsGFbln3a5zDn4oQPVC5JntOhFm9ip0R/O7xn3CMBKGVGf/SEqPLsB/EvuFUGSboYeWBHr6a0GyJR5Y4hb65ho7LK/cbeB2erMspKyu/PDxVgywjyJgjiV3a7v9HOsbTLGJkHhwBxFKSv5OHer4LainyL5s5F7 arista@toronto-workshop-4-9285da02-eos
 ```
 
 ### Enable Password
@@ -252,12 +251,24 @@ vlan internal order ascending range 1006 1199
 
 | VLAN ID | Name | Trunk Groups |
 | ------- | ---- | ------------ |
+| 30 | Thirty | - |
+| 40 | Forty | - |
+| 45 | Forty-five | - |
 | 4093 | MLAG_L3 | MLAG |
 | 4094 | MLAG | MLAG |
 
 ### VLANs Device Configuration
 
 ```eos
+!
+vlan 30
+   name Thirty
+!
+vlan 40
+   name Forty
+!
+vlan 45
+   name Forty-five
 !
 vlan 4093
    name MLAG_L3
@@ -279,10 +290,10 @@ vlan 4094
 | Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | Channel-Group |
 | --------- | ----------- | ---- | ----- | ----------- | ----------- | ------------- |
 | Ethernet1 | MLAG_s2-spine1_Ethernet1 | *trunk | *- | *- | *MLAG | 1 |
-| Ethernet2 | L2_s2-leaf1_Ethernet3 | *trunk | *none | *- | *- | 2 |
-| Ethernet3 | L2_s2-leaf2_Ethernet3 | *trunk | *none | *- | *- | 2 |
-| Ethernet4 | L2_s2-leaf3_Ethernet3 | *trunk | *none | *- | *- | 4 |
-| Ethernet5 | L2_s2-leaf4_Ethernet3 | *trunk | *none | *- | *- | 4 |
+| Ethernet2 | L2_s2-leaf1_Ethernet3 | *trunk | *30 | *- | *- | 2 |
+| Ethernet3 | L2_s2-leaf2_Ethernet3 | *trunk | *30 | *- | *- | 2 |
+| Ethernet4 | L2_s2-leaf3_Ethernet3 | *trunk | *40 | *- | *- | 4 |
+| Ethernet5 | L2_s2-leaf4_Ethernet3 | *trunk | *40 | *- | *- | 4 |
 | Ethernet6 | MLAG_s2-spine1_Ethernet6 | *trunk | *- | *- | *MLAG | 1 |
 
 *Inherited from Port-Channel Interface
@@ -356,8 +367,8 @@ interface Ethernet8
 | Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | LACP Fallback Timeout | LACP Fallback Mode | MLAG ID | EVPN ESI |
 | --------- | ----------- | ---- | ----- | ----------- | ------------| --------------------- | ------------------ | ------- | -------- |
 | Port-Channel1 | MLAG_s2-spine1_Port-Channel1 | trunk | - | - | MLAG | - | - | - | - |
-| Port-Channel2 | L2_RACK1_Port-Channel2 | trunk | none | - | - | - | - | 2 | - |
-| Port-Channel4 | L2_RACK2_Port-Channel2 | trunk | none | - | - | - | - | 4 | - |
+| Port-Channel2 | L2_RACK1_Port-Channel2 | trunk | 30 | - | - | - | - | 2 | - |
+| Port-Channel4 | L2_RACK2_Port-Channel2 | trunk | 40 | - | - | - | - | 4 | - |
 
 #### Port-Channel Interfaces Device Configuration
 
@@ -373,7 +384,7 @@ interface Port-Channel1
 interface Port-Channel2
    description L2_RACK1_Port-Channel2
    no shutdown
-   switchport trunk allowed vlan none
+   switchport trunk allowed vlan 30
    switchport mode trunk
    switchport
    mlag 2
@@ -381,7 +392,7 @@ interface Port-Channel2
 interface Port-Channel4
    description L2_RACK2_Port-Channel2
    no shutdown
-   switchport trunk allowed vlan none
+   switchport trunk allowed vlan 40
    switchport mode trunk
    switchport
    mlag 4
@@ -420,6 +431,9 @@ interface Loopback0
 
 | Interface | Description | VRF |  MTU | Shutdown |
 | --------- | ----------- | --- | ---- | -------- |
+| Vlan30 | Thirty | default | - | False |
+| Vlan40 | Forty | default | - | False |
+| Vlan45 | Forty-five | default | - | False |
 | Vlan4093 | MLAG_L3 | default | 1500 | False |
 | Vlan4094 | MLAG | default | 1500 | False |
 
@@ -427,12 +441,33 @@ interface Loopback0
 
 | Interface | VRF | IP Address | IP Address Virtual | IP Router Virtual Address | ACL In | ACL Out |
 | --------- | --- | ---------- | ------------------ | ------------------------- | ------ | ------- |
+| Vlan30 |  default  |  10.30.30.3/24  |  -  |  10.30.30.1  |  -  |  -  |
+| Vlan40 |  default  |  10.40.40.3/24  |  -  |  10.40.40.1  |  -  |  -  |
+| Vlan45 |  default  |  10.45.45.3/24  |  -  |  10.45.45.1  |  -  |  -  |
 | Vlan4093 |  default  |  10.2.253.3/31  |  -  |  -  |  -  |  -  |
 | Vlan4094 |  default  |  10.2.253.1/31  |  -  |  -  |  -  |  -  |
 
 #### VLAN Interfaces Device Configuration
 
 ```eos
+!
+interface Vlan30
+   description Thirty
+   no shutdown
+   ip address 10.30.30.3/24
+   ip virtual-router address 10.30.30.1
+!
+interface Vlan40
+   description Forty
+   no shutdown
+   ip address 10.40.40.3/24
+   ip virtual-router address 10.40.40.1
+!
+interface Vlan45
+   description Forty-five
+   no shutdown
+   ip address 10.45.45.3/24
+   ip virtual-router address 10.45.45.1
 !
 interface Vlan4093
    description MLAG_L3
